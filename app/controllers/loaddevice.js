@@ -50,7 +50,7 @@ module.exports = function(app) {
       alert_percentage: req.body.alert_percentage,
     };
 
-    db.loaddevices.create(deviceObject)
+    db.loaddevices.upsert(deviceObject)
       .then(function(loaddevice) {
         res.status(201).json({
           message: "Load Device registered sucessfully."

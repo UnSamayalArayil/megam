@@ -1,7 +1,8 @@
 var zmq = require('zmq'),
   util = require('util'),
   sock = zmq.socket('pull'),
-  _ = require('lodash-node');
+  _ = require('lodash-node'),
+  repository = require('../lib/repository');
 
 module.exports = function(config) {
   sock.connect(config.nirvagi);
@@ -9,13 +10,11 @@ module.exports = function(config) {
 
   sock.on('message', function(data) {
     var series = JSON.parse(data.toString());
-
+    repository.addDeviceAndNotify(series);
     var newSeries = {};
-    _.each(series, function(value, key) {
-      newSeries[key] = [{
-        weight: value
-      }];
-    });
+    newSeries[series.name] = [{
+      weight: series.weight
+    }];
 
     config.influxClient.writeSeries(newSeries, {}, function(err) {
       if (err) {
