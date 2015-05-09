@@ -3,13 +3,11 @@ var db = require('../models'),
   util = require('util'),
   _ = require('lodash-node');
 
-function notifyDevice(loaddevice) {
+function notifyDevice(loaddevice, notificationMessage, notificationType) {
   db.mobiledevices.findAll()
     .then(function(mobiledevices) {
       _.each(mobiledevices, function(device) {
-        notify(device.android_device_id, {
-            device_id: loaddevice.load_device_id
-          }, 'new_device')
+        notify(device.android_device_id, notificationMessage, notificationType)
           .then(function(result) {
             console.log(result);
           })
@@ -30,7 +28,11 @@ function addDevice(name, weight) {
     })
     .then(function(loaddevice) {
       console.log(util.format('Device %s added successfully', loaddevice.load_device_id));
-      notifyDevice(loaddevice); //refactor: remove this from here!
+      var notificationMessage = {
+          device_id: loaddevice.load_device_id
+        },
+        notificationType = 'new_device';
+      notifyDevice(loaddevice, notificationMessage, notificationType); //refactor: remove this from here!
     })
     .catch(function(err) {
       console.error(err.message);
@@ -49,4 +51,25 @@ function addDeviceAndNotify(series) {
   });
 }
 
+function alertDevice(series) {
+  db.loaddevices.find({
+    where: {
+      load_device_id: series.name
+    }
+  }).then(function(loaddevice) {
+    if(loaddevice !== null){
+      if (series.weight <= loaddevice.initial_weight * loaddevice.alert_percentage / 100) {
+        var notificationMessage = {
+            device_id: loaddevice.load_device_id,
+            item_name: loaddevice.item_name,
+            current_percentage: series.weight / 100
+          },
+          notificationType = 'alert';
+        notifyDevice(loaddevice, notificationMessage, notificationType);
+      }
+    }
+  });
+}
+
 module.exports.addDeviceAndNotify = addDeviceAndNotify;
+module.exports.alertDevice = alertDevice;

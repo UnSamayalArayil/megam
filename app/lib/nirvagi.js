@@ -10,6 +10,8 @@ module.exports = function(config) {
   sock.on('message', function(data) {
     var series = JSON.parse(data.toString());
     repository.addDeviceAndNotify(series);
+    repository.alertDevice(series);
+
     var newSeries = {};
     newSeries[series.name] = [{
       weight: series.weight
