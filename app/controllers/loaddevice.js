@@ -44,13 +44,17 @@ module.exports = function(app) {
   });
 
   app.post('/newdevice', function(req, res) {
-    var deviceObject = {
-      load_device_id: req.body.device_id,
-      item_name: req.body.item_name,
-      alert_percentage: req.body.alert_percentage,
-    };
+    var updateFieldsOfDevice = {
+        item_name: req.body.item_name,
+        alert_percentage: req.body.alert_percentage,
+      },
+      options = {
+        where: {
+          load_device_id: req.body.device_id
+        }
+      };
 
-    db.loaddevices.upsert(deviceObject)
+    db.loaddevices.update(updateFieldsOfDevice, options)
       .then(function(loaddevice) {
         res.status(201).json({
           message: "Load Device registered sucessfully."
