@@ -9,10 +9,16 @@ module.exports = function(app) {
     extended: false
   }));
   app.post('/test', function(req, res) {
-    db.devices.find(req.body.id)
+    db.mobiledevices.find({
+        where: {
+          user_id: req.body.user_id
+        }
+      })
       .then(function(device) {
 
-        notify(device.id, 'ping!', 'test')
+        notify(device.android_device_id, {
+            device_id: "device 1"
+          }, 'new_device')
           .then(function(result) {
             res.status(200).json({
               message: result
