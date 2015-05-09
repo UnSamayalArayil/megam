@@ -10,17 +10,16 @@ module.exports = function(app) {
   }));
 
   app.post('/register', function(req, res) {
-    var userId = uuid.v4();
     var deviceObject = {
       android_device_id: req.body.id,
-      user_id: userId
+      user_id: uuid.v4()
     };
 
-    db.devices.create(deviceObject)
-      .then(function(device) {
+    db.mobiledevices.create(deviceObject)
+      .then(function(mobiledevice) {
         res.status(201).json({
-          user_id: userId,
-          message: "Device registered sucessfully."
+          user_id: mobiledevice.user_id,
+          message: "Mobile registered sucessfully."
         });
       })
       .catch(function(err) {
