@@ -1,7 +1,6 @@
 var zmq = require('zmq'),
   util = require('util'),
   sock = zmq.socket('pull'),
-  _ = require('lodash-node'),
   repository = require('../lib/repository');
 
 module.exports = function(config) {

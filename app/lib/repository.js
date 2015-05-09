@@ -1,7 +1,9 @@
 var db = require('../models'),
-notify = require('../lib/notify');
+  notify = require('../lib/notify'),
+  util = require('util'),
+  _ = require('lodash-node');
 
-function notify(loaddevice){
+function notifyDevice(loaddevice) {
   db.mobiledevices.findAll()
     .then(function(mobiledevices) {
       _.each(mobiledevices, function(device) {
@@ -21,22 +23,30 @@ function notify(loaddevice){
     });
 }
 
-function addDeviceAndNotify(series) {
-  db.loaddevices.findOrCreate({
-      where: {
-        load_device_id: series.name
-      }
+function addDevice(name, weight) {
+  db.loaddevices.create({
+      load_device_id: name,
+      initial_weight: weight
     })
-    .spread(function(result, created) {
-      var loaddevice = result.get();
-      if (created) {
-        console.log(util.format('Device %s added successfully', loaddevice.load_device_id));
-        notify(loaddevice);
-      }
+    .then(function(loaddevice) {
+      console.log(util.format('Device %s added successfully', loaddevice.load_device_id));
+      notifyDevice(loaddevice); //refactor: remove this from here!
     })
     .catch(function(err) {
       console.error(err.message);
     });
+}
+
+function addDeviceAndNotify(series) {
+  db.loaddevices.find({
+    where: {
+      load_device_id: series.name
+    }
+  }).then(function(loaddevice) {
+    if (loaddevice === null) {
+      addDevice(series.name, series.weight);
+    }
+  });
 }
 
 module.exports.addDeviceAndNotify = addDeviceAndNotify;
