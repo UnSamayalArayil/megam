@@ -1,10 +1,8 @@
-// Example model
-
-
 module.exports = function(sequelize, DataTypes) {
 
   var devices = sequelize.define('devices', {
-    id: { type: DataTypes.STRING, allowNull: false}
+    android_device_id: { type: DataTypes.STRING, allowNull: false, unique: true},
+    user_id: {type: DataTypes.UUID, allowNull: false, unique: true}
   });
 
   return devices;
