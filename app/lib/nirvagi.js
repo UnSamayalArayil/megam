@@ -3,7 +3,10 @@ var zmq = require('zmq'),
   sock = zmq.socket('pull'),
   repository = require('../lib/repository');
 
+
 module.exports = function(config) {
+  var eventRepository = require('../lib/eventRepository')(config);
+
   sock.connect(config.nirvagi);
   console.log(util.format('Talking to nirvagi on %s', config.nirvagi));
 
@@ -16,11 +19,6 @@ module.exports = function(config) {
     newSeries[series.name] = [{
       weight: series.weight
     }];
-
-    config.influxClient.writeSeries(newSeries, {}, function(err) {
-      if (err) {
-        console.error("Cannot write data", err);
-      }
-    });
+    eventRepository.writeSeries(newSeries);
   });
 };
