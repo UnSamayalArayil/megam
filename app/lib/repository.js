@@ -1,6 +1,7 @@
 var db = require('../models'),
   notify = require('../lib/notify'),
   util = require('util'),
+  Q = require('q'),
   _ = require('lodash-node');
 
 function notifyDevice(loaddevice, notificationMessage, notificationType) {
@@ -51,22 +52,48 @@ function addDeviceAndNotify(series) {
   });
 }
 
+function updateNotification(loaddevice) {
+  var updateFieldsOfDevice = {
+      notification_Sent: true
+    },
+    options = {
+      where: {
+        load_device_id: loaddevice.load_device_id,
+        notification_Sent: false
+      }
+    };
+
+  return Q.promise(function(resolve, reject) {
+    db.loaddevices.update(updateFieldsOfDevice, options)
+      .then(function() {
+        resolve("Notification sent sucessfully.");
+      })
+      .catch(function(err) {
+        reject(err);
+      });
+  });
+}
+
 function alertDevice(series) {
   db.loaddevices.find({
     where: {
-      load_device_id: series.name
+      load_device_id: series.name,
+      notification_Sent: false
     }
   }).then(function(loaddevice) {
-    if(loaddevice !== null){
-      if (series.weight <= loaddevice.initial_weight * loaddevice.alert_percentage / 100) {
-        var notificationMessage = {
-            device_id: loaddevice.load_device_id,
-            item_name: loaddevice.item_name,
-            current_percentage: series.weight / 100
-          },
-          notificationType = 'alert';
+    if (loaddevice !== null && series.weight <= loaddevice.initial_weight * loaddevice.alert_percentage / 100) {
+      var notificationMessage = {
+          device_id: loaddevice.load_device_id,
+          item_name: loaddevice.item_name,
+          current_percentage: series.weight / 100
+        },
+        notificationType = 'alert';
+      updateNotification(loaddevice).then(function() {
         notifyDevice(loaddevice, notificationMessage, notificationType);
-      }
+      })
+      .catch(function(err) {
+        console.error(err.message);
+      });
     }
   });
 }
