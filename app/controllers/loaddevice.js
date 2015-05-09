@@ -3,7 +3,6 @@ var express = require('express'),
   _ = require('lodash-node');
 
 function transform(loaddevices) {
-
   return _.map(loaddevices, function(loaddevice) {
     return {
       device_id: loaddevice.load_device_id,
@@ -14,7 +13,6 @@ function transform(loaddevices) {
 }
 
 module.exports = function(app) {
-
   app.post('/list', function(req, res) {
     db.mobiledevices.find({
         where: {
@@ -55,8 +53,8 @@ module.exports = function(app) {
       };
 
     db.loaddevices.update(updateFieldsOfDevice, options)
-      .then(function(loaddevice) {
-        res.status(201).json({
+      .then(function() {
+        res.status(200).json({
           message: "Load Device registered sucessfully."
         });
       })
