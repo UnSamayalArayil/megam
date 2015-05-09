@@ -1,16 +1,12 @@
 var express = require('express'),
-  router = express.Router(),
-  db = require('../models');
+  router = express.Router();
 
 module.exports = function (app) {
   app.use('/', router);
 };
 
-router.get('/', function (req, res, next) {
-  db.Article.findAll().then(function (articles) {
+router.get('/', function (req, res) {
     res.render('index', {
-      title: 'Generator-Express MVC',
-      articles: articles
-    });
+      title: 'Samayal Arai ku varuga'
   });
 });
