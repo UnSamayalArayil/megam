@@ -85,7 +85,7 @@ function alertDevice(series) {
       var notificationMessage = {
           device_id: loaddevice.load_device_id,
           item_name: loaddevice.item_name,
-          current_percentage: series.weight / 100
+          current_percentage: loaddevice.alert_percentage
         },
         notificationType = 'alert';
       updateNotification(loaddevice).then(function() {
