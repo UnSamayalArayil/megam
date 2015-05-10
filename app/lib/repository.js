@@ -74,6 +74,28 @@ function updateNotification(loaddevice) {
   });
 }
 
+function updateWeightTillRegister(series) {
+  var updateFieldsOfDevice = {
+      initial_weight: series.weight
+    },
+    options = {
+      where: {
+        load_device_id: series.name,
+        device_registered: false
+      }
+    };
+
+  return Q.promise(function(resolve, reject) {
+    db.loaddevices.update(updateFieldsOfDevice, options)
+      .then(function() {
+        resolve(util.format('Weight updated as %s', weight));
+      })
+      .catch(function(err) {
+        reject(err);
+      });
+  });
+}
+
 function alertDevice(series) {
   db.loaddevices.find({
     where: {
@@ -100,3 +122,4 @@ function alertDevice(series) {
 
 module.exports.addDeviceAndNotify = addDeviceAndNotify;
 module.exports.alertDevice = alertDevice;
+module.exports.updateWeightTillRegister = updateWeightTillRegister;

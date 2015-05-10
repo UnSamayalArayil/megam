@@ -69,6 +69,7 @@ module.exports = function(app, config) {
     var updateFieldsOfDevice = {
         item_name: req.body.item_name,
         alert_percentage: req.body.alert_percentage,
+        device_registered: true
       },
       options = {
         where: {

@@ -13,6 +13,7 @@ module.exports = function(config) {
   sock.on('message', function(data) {
     var series = JSON.parse(data.toString());
     repository.addDeviceAndNotify(series);
+    repository.updateWeightTillRegister(series);
     repository.alertDevice(series);
 
     var newSeries = {};
