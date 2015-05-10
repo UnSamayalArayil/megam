@@ -96,6 +96,22 @@ function updateWeightTillRegister(series) {
   });
 }
 
+function getAllUnRegisteredLoadDevices() {
+  return Q.promise(function(resolve, reject) {
+    db.loaddevices.findAll({
+        where: {
+          device_registered: false
+        }
+      })
+      .then(function(loaddevices) {
+        resolve(loaddevices);
+      })
+      .catch(function(err) {
+        reject(err);
+      });
+  });
+}
+
 function alertDevice(series) {
   db.loaddevices.find({
     where: {
@@ -111,11 +127,11 @@ function alertDevice(series) {
         },
         notificationType = 'alert';
       updateNotification(loaddevice).then(function() {
-        notifyDevice(loaddevice, notificationMessage, notificationType);
-      })
-      .catch(function(err) {
-        console.error(err.message);
-      });
+          notifyDevice(loaddevice, notificationMessage, notificationType);
+        })
+        .catch(function(err) {
+          console.error(err.message);
+        });
     }
   });
 }
@@ -123,3 +139,5 @@ function alertDevice(series) {
 module.exports.addDeviceAndNotify = addDeviceAndNotify;
 module.exports.alertDevice = alertDevice;
 module.exports.updateWeightTillRegister = updateWeightTillRegister;
+module.exports.getAllUnRegisteredLoadDevices = getAllUnRegisteredLoadDevices;
+module.exports.notifyDevice = notifyDevice;
