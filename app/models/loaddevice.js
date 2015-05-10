@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes) {
     item_name:  DataTypes.STRING,
     alert_percentage: DataTypes.INTEGER,
     initial_weight: { type: DataTypes.INTEGER, allowNull: false},
-    notification_Sent: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
+    notification_sent: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false}
   });
 
   return loaddevices;

@@ -54,12 +54,12 @@ function addDeviceAndNotify(series) {
 
 function updateNotification(loaddevice) {
   var updateFieldsOfDevice = {
-      notification_Sent: true
+      notification_sent: true
     },
     options = {
       where: {
         load_device_id: loaddevice.load_device_id,
-        notification_Sent: false
+        notification_sent: false
       }
     };
 
@@ -78,7 +78,7 @@ function alertDevice(series) {
   db.loaddevices.find({
     where: {
       load_device_id: series.name,
-      notification_Sent: false
+      notification_sent: false
     }
   }).then(function(loaddevice) {
     if (loaddevice !== null && series.weight <= loaddevice.initial_weight * loaddevice.alert_percentage / 100) {
