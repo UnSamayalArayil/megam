@@ -1,18 +1,36 @@
 var express = require('express'),
   db = require('../models'),
-  _ = require('lodash-node');
+  _ = require('lodash-node'),
+  Q = require('q'),
+  async = require('async');
 
-function transform(loaddevices) {
-  return _.map(loaddevices, function(loaddevice) {
-    return {
-      device_id: loaddevice.load_device_id,
-      item_name: loaddevice.item_name,
-      current_percentage: loaddevice.alert_percentage
-    };
+function transform(loadDevices, eventRepository) {
+
+  return Q.promise(function(resolve, reject) {
+    async.map(loadDevices, function(loadDevice, callback) {
+      eventRepository.getWeight(loadDevice.load_device_id).then(function(currentWeight) {
+        var currentPercentage = (currentWeight / loadDevice.initial_weight) * 100;
+        callback(null, {
+          device_id: loadDevice.load_device_id,
+          item_name: loadDevice.item_name,
+          current_percentage: Math.round(currentPercentage * 100) / 100
+        });
+      }, function(err) {
+        callback(err);
+      });
+    }, function(err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
   });
 }
 
-module.exports = function(app) {
+module.exports = function(app, config) {
+  var eventRepository = require('../lib/eventRepository')(config);
+
   app.post('/list', function(req, res) {
     db.mobiledevices.find({
         where: {
@@ -22,8 +40,14 @@ module.exports = function(app) {
       .then(function() {
         db.loaddevices.findAll()
           .then(function(loaddevices) {
-            res.status(200).json({
-              items: transform(loaddevices)
+            transform(loaddevices, eventRepository).then(function(items) {
+              res.status(200).json({
+                items: items
+              });
+            }, function(err) {
+              res.status(500).json({
+                message: err.message
+              });
             });
           })
           .catch(function(err) {
